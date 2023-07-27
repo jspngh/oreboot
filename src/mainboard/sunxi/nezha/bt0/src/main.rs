@@ -459,11 +459,13 @@ extern "C" fn main() {
     };
     let gpio = Gpio::new(p.GPIO);
 
+    /* The MangoPi mq pro has its led on a different pin
     // light up led
     let mut pb5 = gpio.portb.pb5.into_output();
     pb5.set_high().unwrap();
     let mut pc1 = gpio.portc.pc1.into_output();
     pc1.set_high().unwrap();
+    */
 
     // prepare serial port logger
     let tx = gpio.portb.pb8.into_function_6();
@@ -479,6 +481,7 @@ extern "C" fn main() {
 
     println!("oreboot 🦀");
 
+    /* MnemOS will take care of the necessary initialization
     // FIXME: Much of the below can be removed or moved over to the main stage.
     trim_bandgap_ref_voltage();
 
@@ -531,6 +534,7 @@ extern "C" fn main() {
             write_volatile((WAKEUP_MASK_REG0 + 4 * i) as *mut u32, 0xffffffff);
         }
     }
+    */
 
     let ram_size = mctl::init();
     println!("{}M 🐏", ram_size);
@@ -612,21 +616,11 @@ extern "C" fn main() {
         // Mandatory 8K SPL offset on sdcard
         let skip = 8192;
         // SPL is already loaded (by BROM), so skip it
-        let skip = skip + (0x1 << 15); // 32K, the size of SPL/boot0
-        if let Err(e) = load(skip, ORE_ADDR, ORE_SIZE, &mut smhc) {
-            println!("Loading oreboot failed: {:?}", e);
-        }
-
-        // Linux is behind oreboot + dtfs
-        let skip = skip + ORE_SIZE + DTF_SIZE;
-        if let Err(e) = load(skip, LIN_ADDR, LIN_SIZE, &mut smhc) {
-            println!("Loading Linux failed: {:?}", e);
-        }
-
-        // DTB is behind Linux
-        let skip = skip + LIN_SIZE;
-        if let Err(e) = load(skip, DTB_ADDR, DTB_SIZE, &mut smhc) {
-            println!("Loading DTB failed: {:?}", e);
+        let skip = skip + (0x1 << 15);
+        // Load 1MB of data to the start of DRAM
+        // If MnemOS becomes larger, this will have to be adapted
+        if let Err(e) = load(skip, 0x4000_0000, 0x100000, &mut smhc) {
+            println!("Loading mnemos failed: {:?}", e);
         }
     }
 
