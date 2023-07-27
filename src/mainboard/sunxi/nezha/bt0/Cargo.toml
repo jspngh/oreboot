@@ -24,10 +24,10 @@ version = "0.10.1"
 features = ["critical-section-single-hart"]
 
 [features]
-default = ["nezha"]
+default = ["lichee"]
 
 nezha = ["nand"]
-lichee = ["nor"]
+lichee = ["mmc"]
 
 nand = []
 nor = []
