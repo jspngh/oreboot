@@ -617,9 +617,9 @@ extern "C" fn main() {
         let skip = 8192;
         // SPL is already loaded (by BROM), so skip it
         let skip = skip + (0x1 << 15);
-        // Load 1MB of data to the start of DRAM
+        // Load 2MB of data to the start of DRAM
         // If MnemOS becomes larger, this will have to be adapted
-        if let Err(e) = load(skip, 0x4000_0000, 0x100000, &mut smhc) {
+        if let Err(e) = load(skip, 0x4000_0000, 0x200000, &mut smhc) {
             println!("Loading mnemos failed: {:?}", e);
         }
     }
